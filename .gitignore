@@ -1,0 +1,53 @@
+# Build directories
+/build/
+/build-*/
+/out/
+/dist/
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Ninja
+.ninja_deps
+.ninja_log
+
+# Visual Studio / MSVC
+*.vcxproj
+*.vcxproj.filters
+*.user
+*.sln
+
+# VS Code
+.vscode/
+.ipch/
+*.code-workspace
+
+# Compiled objects / libs / bins
+*.obj
+*.o
+*.lo
+*.la
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.pdb
+*.ilk
+
+# Generated
+*.log
+*.tmp
+
+# Cache
+.cache/
+.clangd/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/Users/Shawn/Dev/Learning/c++/graph/cpp-state-graph/build/_deps/nlohmann_json-subbuild/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
