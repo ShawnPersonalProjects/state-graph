@@ -1,0 +1,35 @@
+{
+  "phases": [
+    {
+      "id": "Main",
+      "initial_state": "Idle",
+      "nodes": [
+        { "id": "Idle",   "params": { "desc": "System idle" },   "vars": { "count": 0, "enabled": true } },
+        { "id": "Active", "params": { "desc": "Processing" },    "vars": { "count": 0, "enabled": true } },
+        { "id": "Error",  "params": { "desc": "Fault" },         "vars": { "count": 0, "enabled": true } }
+      ],
+      "edges": [
+        { "from": "Idle",   "to": "Active", "condition": "enabled && count >= 0", "actions": { "count": 1 } },
+        { "from": "Active", "to": "Active", "condition": "count < 2 && enabled",  "actions": { "count": 2 } },
+        { "from": "Active", "to": "Error",  "condition": "!enabled || count >= 2" },
+        { "from": "Error",  "to": "Idle",   "condition": "count >= 5", "actions": { "count": 0, "enabled": true } }
+      ]
+    },
+    {
+      "id": "Recovery",
+      "initial_state": "RIdle",
+      "nodes": [
+        { "id": "RIdle",  "params": { "desc": "Recovery idle" }, "vars": { "attempts": 0, "enabled": true } },
+        { "id": "Repair", "params": { "desc": "Repairing" },     "vars": { "attempts": 0, "enabled": true } }
+      ],
+      "edges": [
+        { "from": "RIdle",  "to": "Repair", "condition": "attempts < 1 && enabled", "actions": { "attempts": 1 } },
+        { "from": "Repair", "to": "RIdle",  "condition": "attempts >= 1", "actions": { "attempts": 2 } }
+      ]
+    }
+  ],
+  "phase_edges": [
+    { "from": "Main",     "to": "Recovery", "condition": "count >= 2" },
+    { "from": "Recovery", "to": "Main",     "condition": "attempts >= 2" }
+  ]
+}
