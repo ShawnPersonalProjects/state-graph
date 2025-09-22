@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Graph Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .toolbar h1 {
+            font-size: 20px;
+            margin-right: 30px;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tool-item {
+            padding: 8px 15px;
+            background: #34495e;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .tool-item:hover {
+            background: #4a90e2;
+        }
+
+        .tool-item.active {
+            background: #e74c3c;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .draggable-item {
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            cursor: grab;
+            text-align: center;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .draggable-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #fafafa;
+            overflow: auto; /* Add scrollbars when content exceeds container */
+        }
+
+        /* Custom scrollbar styling */
+        .canvas-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        .canvas-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 6px;
+        }
+
+        .canvas-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 6px;
+        }
+
+        .canvas-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .canvas-container::-webkit-scrollbar-corner {
+            background: #f1f1f1;
+        }
+
+        .canvas {
+            width: 200vw; /* Double the viewport width */
+            height: 200vh; /* Double the viewport height */
+            min-width: 2000px; /* Minimum width for smaller screens */
+            min-height: 1400px; /* Minimum height for smaller screens */
+            position: relative;
+            cursor: crosshair;
+            background: #ffffff;
+            background-image: 
+                linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            border: 1px solid #ddd;
+        }
+
+        .phase {
+            position: absolute;
+            min-width: 200px;
+            min-height: 150px;
+            background: rgba(52, 152, 219, 0.1);
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: move;
+            resize: both;
+            overflow: visible;
+        }
+
+        .phase.dragging {
+            opacity: 0.8;
+            z-index: 1000;
+        }
+
+        .phase-header {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: move;
+        }
+
+        .node {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: #2ecc71;
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid #27ae60;
+        }
+
+        .node.dragging {
+            opacity: 0.8;
+            z-index: 1000;
+        }
+
+        .node.initial {
+            background: #f39c12;
+            border-color: #e67e22;
+        }
+
+        .edge {
+            position: absolute;
+            pointer-events: stroke;
+            cursor: pointer;
+        }
+
+        .edge path {
+            stroke: #34495e;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+
+        .phase-edge path {
+            stroke: #e74c3c;
+            stroke-width: 3;
+            fill: none;
+            marker-end: url(#phase-arrowhead);
+            stroke-dasharray: 5,5;
+        }
+
+        .edge-label, .phase-edge-label {
+            font-size: 9px;
+            fill: #2c3e50;
+            text-anchor: middle;
+            pointer-events: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .phase-edge-label {
+            font-size: 10px;
+            fill: #c0392b;
+            font-weight: bold;
+        }
+
+        .selected {
+            box-shadow: 0 0 0 3px #e74c3c;
+        }
+
+        /* Special selection for edges */
+        .edge-group.selected .edge-path {
+            stroke: #e74c3c;
+            stroke-width: 3;
+        }
+
+        .edge-group.selected .edge-label {
+            fill: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Special selection for phase edges */
+        .phase-edge-group.selected .phase-edge-path {
+            stroke: #c0392b;
+            stroke-width: 4;
+            stroke-dasharray: 3,3;
+        }
+
+        .phase-edge-group.selected .phase-edge-label {
+            fill: #c0392b;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .edge-control-point {
+            fill: #3498db;
+            stroke: #2980b9;
+            stroke-width: 2;
+            cursor: move;
+            r: 4;
+        }
+
+        .edge-control-point:hover {
+            fill: #e74c3c;
+            r: 6;
+        }
+
+        /* Resize handles for phases and nodes */
+        .resize-handle {
+            fill: #3498db;
+            stroke: #2980b9;
+            stroke-width: 1;
+            opacity: 0.8;
+            display: none;
+        }
+
+        .resize-handle:hover {
+            opacity: 1;
+            stroke-width: 2;
+        }
+
+        .resize-handle.corner {
+            cursor: nw-resize;
+        }
+
+        .resize-handle.corner.ne {
+            cursor: ne-resize;
+        }
+
+        .resize-handle.corner.se {
+            cursor: se-resize;
+        }
+
+        .resize-handle.corner.sw {
+            cursor: sw-resize;
+        }
+
+        .resize-handle.edge.horizontal {
+            cursor: ew-resize;
+        }
+
+        .resize-handle.edge.vertical {
+            cursor: ns-resize;
+        }
+
+        /* Connection points for phase edges */
+        .connection-point {
+            fill: #27ae60;
+            stroke: #229954;
+            stroke-width: 1;
+            opacity: 0;
+            cursor: crosshair;
+        }
+
+        .connection-point:hover,
+        .connection-point.active {
+            opacity: 0.8;
+        }
+
+        /* Selection highlights */
+        .selected .resize-handle {
+            display: block;
+        }
+
+        .selected .connection-point {
+            opacity: 0.3;
+        }
+
+        /* Visual feedback for dragging and resizing */
+        .phase-group:hover {
+            filter: brightness(1.05);
+        }
+
+        .phase-background {
+            transition: fill 0.2s ease;
+        }
+
+        .drop-zone {
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover {
+            stroke: #3498db;
+            stroke-width: 1;
+            stroke-dasharray: 2,2;
+        }
+
+        .node-group:hover {
+            filter: brightness(1.1);
+        }
+
+        .edge-group:hover,
+        .phase-edge-group:hover {
+            opacity: 0.8;
+        }
+
+        .dragging {
+            opacity: 0.7;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .resizing {
+            opacity: 0.8;
+            stroke-dasharray: 2,2;
+        }
+
+        /* Tool-specific cursors */
+        .canvas-select {
+            cursor: default;
+        }
+
+        .canvas-move {
+            cursor: move;
+        }
+
+        .canvas-edge,
+        .canvas-phase-edge {
+            cursor: crosshair;
+        }
+
+        /* Hover states for interactive elements */
+        .resize-handle:hover {
+            transform: scale(1.2);
+            transition: transform 0.1s ease;
+        }
+
+        .connection-point:hover {
+            transform: scale(1.3);
+            transition: transform 0.1s ease;
+        }
+
+        .edge-control-point:hover {
+            transform: scale(1.2);
+            transition: transform 0.1s ease;
+        }
+
+        .position-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #e74c3c;
+            border: 1px solid #c0392b;
+            border-radius: 50%;
+            cursor: move;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .selected .position-handle {
+            opacity: 1;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #3498db;
+            border: 1px solid #2980b9;
+            bottom: -5px;
+            right: -5px;
+            cursor: nw-resize;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .selected .resize-handle {
+            opacity: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .json-preview {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+            font-family: monospace;
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .connecting-line {
+            stroke: #e74c3c;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            fill: none;
+        }
+
+        #contextMenu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .context-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .context-item:hover {
+            background: #f8f9fa;
+        }
+
+        .context-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <h1>State Graph Editor</h1>
+        <div class="filename-display">
+            <span style="color: #7f8c8d; font-size: 12px;">File: </span>
+            <span id="currentFileName" style="color: #ecf0f1; font-size: 12px; font-weight: bold;">untitled.json</span>
+        </div>
+        <div class="tool-group">
+            <button class="tool-item active" id="selectTool">Select</button>
+            <button class="tool-item" id="moveTool">Move</button>
+            <button class="tool-item" id="edgeTool">Connect Nodes</button>
+            <button class="tool-item" id="phaseEdgeTool">Connect Phases</button>
+        </div>
+        <div class="tool-group">
+            <button class="tool-item" onclick="exportJSON()">Export JSON</button>
+            <button class="tool-item" onclick="loadJSON()">Load JSON</button>
+            <button class="tool-item" onclick="clearCanvas()">Clear</button>
+        </div>
+        <div class="tool-group">
+            <span style="color: #bdc3c7; font-size: 12px;">Canvas: 2x Extended | Use scrollbars to navigate</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>Components</h3>
+            <div class="draggable-item" draggable="true" data-type="phase">
+                📦 Phase
+            </div>
+            <div class="draggable-item" draggable="true" data-type="node">
+                🔴 Node
+            </div>
+            
+            <h3>Instructions</h3>
+            <div style="font-size: 12px; color: #666; line-height: 1.4;">
+                <p><strong>Drag & Drop:</strong> Drag components to canvas</p>
+                <p><strong>Double-click:</strong> Edit component properties</p>
+                <p><strong>Connect Nodes:</strong> Select Connect Nodes tool, then click two nodes</p>
+                <p><strong>Connect Phases:</strong> Select Connect Phases tool, then click two phases</p>
+                <p><strong>Delete:</strong> Right-click and select delete</p>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <svg class="canvas" id="canvas">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                            refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+                    </marker>
+                    <marker id="phase-arrowhead" markerWidth="12" markerHeight="9" 
+                            refX="11" refY="4.5" orient="auto">
+                        <polygon points="0 0, 12 4.5, 0 9" fill="#e74c3c" />
+                    </marker>
+                </defs>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu">
+        <div class="context-item" onclick="editSelected()">Edit</div>
+        <div class="context-item" onclick="deleteSelected()">Delete</div>
+    </div>
+
+    <!-- Phase Modal -->
+    <div id="phaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Phase</h3>
+                <span class="close" onclick="closeModal('phaseModal')">&times;</span>
+            </div>
+            <form id="phaseForm">
+                <div class="form-group">
+                    <label for="phaseId">Phase ID:</label>
+                    <input type="text" id="phaseId" name="id" required>
+                </div>
+                <div class="form-group">
+                    <label for="phaseInitialState">Initial State:</label>
+                    <select id="phaseInitialState" name="initial_state">
+                        <option value="">Select initial state...</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Save</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal('phaseModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Node Modal -->
+    <div id="nodeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Node</h3>
+                <span class="close" onclick="closeModal('nodeModal')">&times;</span>
+            </div>
+            <form id="nodeForm">
+                <div class="form-group">
+                    <label for="nodeId">Node ID:</label>
+                    <input type="text" id="nodeId" name="id" required>
+                </div>
+                <div class="form-group">
+                    <label for="nodeDesc">Parameters (JSON format):</label>
+                    <textarea id="nodeDesc" name="params" placeholder='{"desc": "Node description"}'></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="nodeVars">Variables (JSON format):</label>
+                    <textarea id="nodeVars" name="vars" placeholder='{"key": "value"}'></textarea>
+                </div>
+                <button type="submit" class="btn">Save</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal('nodeModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edge Modal -->
+    <div id="edgeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Edge</h3>
+                <span class="close" onclick="closeModal('edgeModal')">&times;</span>
+            </div>
+            <form id="edgeForm">
+                <div class="form-group">
+                    <label for="edgeFrom">From Node:</label>
+                    <select id="edgeFrom" name="from" required>
+                        <option value="">Select source node...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edgeTo">To Node:</label>
+                    <select id="edgeTo" name="to" required>
+                        <option value="">Select target node...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edgeCondition">Condition:</label>
+                    <input type="text" id="edgeCondition" name="condition" placeholder="e.g., enabled && count >= 0">
+                </div>
+                <div class="form-group">
+                    <label for="edgeActions">Actions (JSON format):</label>
+                    <textarea id="edgeActions" name="actions" placeholder='{"key": "value"}'></textarea>
+                </div>
+                <button type="submit" class="btn">Save</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal('edgeModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Phase Edge Modal -->
+    <div id="phaseEdgeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Phase Transition</h3>
+                <span class="close" onclick="closeModal('phaseEdgeModal')">&times;</span>
+            </div>
+            <form id="phaseEdgeForm">
+                <div class="form-group">
+                    <label for="phaseEdgeFrom">From Phase:</label>
+                    <select id="phaseEdgeFrom" name="from" required>
+                        <option value="">Select source phase...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="phaseEdgeTo">To Phase:</label>
+                    <select id="phaseEdgeTo" name="to" required>
+                        <option value="">Select target phase...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="phaseEdgeCondition">Condition:</label>
+                    <input type="text" id="phaseEdgeCondition" name="condition" placeholder="e.g., count >= 2">
+                </div>
+                <button type="submit" class="btn">Save</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal('phaseEdgeModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JSON Preview -->
+    <div class="json-preview" id="jsonPreview">
+        <strong>JSON Preview:</strong><br>
+        <pre id="jsonContent">{}</pre>
+    </div>
+
+    <!-- File input for loading JSON -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
+
+    <script src="graph-editor.js"></script>
+</body>
+</html>
