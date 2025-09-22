@@ -1,14 +1,14 @@
 [
 {
-  "directory": "C:/Users/Shawn/Dev/Learning/c++/graph/cpp-state-graph/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/state_graph_demo.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\state_graph_demo.dir\\src\\main.cpp.obj -c C:\\Users\\Shawn\\Dev\\Learning\\c++\\graph\\cpp-state-graph\\src\\main.cpp",
-  "file": "C:/Users/Shawn/Dev/Learning/c++/graph/cpp-state-graph/src/main.cpp",
+  "directory": "C:/Users/Shawn/Dev/Learning/c++/graph/state-graph/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/state_graph_demo.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\state_graph_demo.dir\\src\\main.cpp.obj -c C:\\Users\\Shawn\\Dev\\Learning\\c++\\graph\\state-graph\\src\\main.cpp",
+  "file": "C:/Users/Shawn/Dev/Learning/c++/graph/state-graph/src/main.cpp",
   "output": "CMakeFiles/state_graph_demo.dir/src/main.cpp.obj"
 },
 {
-  "directory": "C:/Users/Shawn/Dev/Learning/c++/graph/cpp-state-graph/build",
-  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/state_graph_tests.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\state_graph_tests.dir\\tests\\test_state_graph.cpp.obj -c C:\\Users\\Shawn\\Dev\\Learning\\c++\\graph\\cpp-state-graph\\tests\\test_state_graph.cpp",
-  "file": "C:/Users/Shawn/Dev/Learning/c++/graph/cpp-state-graph/tests/test_state_graph.cpp",
+  "directory": "C:/Users/Shawn/Dev/Learning/c++/graph/state-graph/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/state_graph_tests.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\state_graph_tests.dir\\tests\\test_state_graph.cpp.obj -c C:\\Users\\Shawn\\Dev\\Learning\\c++\\graph\\state-graph\\tests\\test_state_graph.cpp",
+  "file": "C:/Users/Shawn/Dev/Learning/c++/graph/state-graph/tests/test_state_graph.cpp",
   "output": "CMakeFiles/state_graph_tests.dir/tests/test_state_graph.cpp.obj"
 }
 ]
