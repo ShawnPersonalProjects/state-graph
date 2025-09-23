@@ -37,7 +37,7 @@ public:
             if (id=="true" || id=="false") return {TokKind::BOOL,id};
             return {TokKind::ID,id};
         }
-        if (std::isdigit((unsigned char)c)) {
+        if (std::isdigit((unsigned char)c) || (c == '-' && i+1 < s.size() && std::isdigit((unsigned char)s[i+1]))) {
             size_t start=i++;
             while (i<s.size() && (std::isdigit((unsigned char)s[i])||s[i]=='.')) ++i;
             return {TokKind::NUM, s.substr(start,i-start)};

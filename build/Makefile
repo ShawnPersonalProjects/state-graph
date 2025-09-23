@@ -94,6 +94,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"gmock\" \"gtest\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	"C:\Program Files\CMake\bin\cmake.exe" -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	"C:\Program Files\CMake\bin\cmake.exe" -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\Shawn\Dev\Learning\c++\graph\state-graph\build\CMakeFiles C:\Users\Shawn\Dev\Learning\c++\graph\state-graph\build\\CMakeFiles\progress.marks
@@ -151,6 +196,136 @@ state_graph_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\state_graph_tests.dir\build.make CMakeFiles/state_graph_tests.dir/build
 .PHONY : state_graph_tests/fast
 
+#=============================================================================
+# Target rules for targets named test_value
+
+# Build rule for target.
+test_value: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_value
+.PHONY : test_value
+
+# fast build rule for target.
+test_value/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_value.dir\build.make CMakeFiles/test_value.dir/build
+.PHONY : test_value/fast
+
+#=============================================================================
+# Target rules for targets named test_expression
+
+# Build rule for target.
+test_expression: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_expression
+.PHONY : test_expression
+
+# fast build rule for target.
+test_expression/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_expression.dir\build.make CMakeFiles/test_expression.dir/build
+.PHONY : test_expression/fast
+
+#=============================================================================
+# Target rules for targets named test_node_edge
+
+# Build rule for target.
+test_node_edge: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_node_edge
+.PHONY : test_node_edge
+
+# fast build rule for target.
+test_node_edge/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_node_edge.dir\build.make CMakeFiles/test_node_edge.dir/build
+.PHONY : test_node_edge/fast
+
+#=============================================================================
+# Target rules for targets named test_phase_edge
+
+# Build rule for target.
+test_phase_edge: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_phase_edge
+.PHONY : test_phase_edge
+
+# fast build rule for target.
+test_phase_edge/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_phase_edge.dir\build.make CMakeFiles/test_phase_edge.dir/build
+.PHONY : test_phase_edge/fast
+
+#=============================================================================
+# Target rules for targets named test_state_graph
+
+# Build rule for target.
+test_state_graph: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_state_graph
+.PHONY : test_state_graph
+
+# fast build rule for target.
+test_state_graph/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_state_graph.dir\build.make CMakeFiles/test_state_graph.dir/build
+.PHONY : test_state_graph/fast
+
+#=============================================================================
+# Target rules for targets named test_multi_phase_state_graph
+
+# Build rule for target.
+test_multi_phase_state_graph: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_multi_phase_state_graph
+.PHONY : test_multi_phase_state_graph
+
+# fast build rule for target.
+test_multi_phase_state_graph/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_multi_phase_state_graph.dir\build.make CMakeFiles/test_multi_phase_state_graph.dir/build
+.PHONY : test_multi_phase_state_graph/fast
+
+#=============================================================================
+# Target rules for targets named gmock
+
+# Build rule for target.
+gmock: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 gmock
+.PHONY : gmock
+
+# fast build rule for target.
+gmock/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\googletest-build\googlemock\CMakeFiles\gmock.dir\build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build
+.PHONY : gmock/fast
+
+#=============================================================================
+# Target rules for targets named gmock_main
+
+# Build rule for target.
+gmock_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 gmock_main
+.PHONY : gmock_main
+
+# fast build rule for target.
+gmock_main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\googletest-build\googlemock\CMakeFiles\gmock_main.dir\build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
+.PHONY : gmock_main/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\googletest-build\googletest\CMakeFiles\gtest.dir\build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\googletest-build\googletest\CMakeFiles\gtest_main.dir\build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
 src/main.obj: src/main.cpp.obj
 .PHONY : src/main.obj
 
@@ -174,6 +349,102 @@ src/main.s: src/main.cpp.s
 src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\state_graph_demo.dir\build.make CMakeFiles/state_graph_demo.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
+
+tests/test_expression_gtest.obj: tests/test_expression_gtest.cpp.obj
+.PHONY : tests/test_expression_gtest.obj
+
+# target to build an object file
+tests/test_expression_gtest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_expression.dir\build.make CMakeFiles/test_expression.dir/tests/test_expression_gtest.cpp.obj
+.PHONY : tests/test_expression_gtest.cpp.obj
+
+tests/test_expression_gtest.i: tests/test_expression_gtest.cpp.i
+.PHONY : tests/test_expression_gtest.i
+
+# target to preprocess a source file
+tests/test_expression_gtest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_expression.dir\build.make CMakeFiles/test_expression.dir/tests/test_expression_gtest.cpp.i
+.PHONY : tests/test_expression_gtest.cpp.i
+
+tests/test_expression_gtest.s: tests/test_expression_gtest.cpp.s
+.PHONY : tests/test_expression_gtest.s
+
+# target to generate assembly for a file
+tests/test_expression_gtest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_expression.dir\build.make CMakeFiles/test_expression.dir/tests/test_expression_gtest.cpp.s
+.PHONY : tests/test_expression_gtest.cpp.s
+
+tests/test_multi_phase_state_graph_gtest.obj: tests/test_multi_phase_state_graph_gtest.cpp.obj
+.PHONY : tests/test_multi_phase_state_graph_gtest.obj
+
+# target to build an object file
+tests/test_multi_phase_state_graph_gtest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_multi_phase_state_graph.dir\build.make CMakeFiles/test_multi_phase_state_graph.dir/tests/test_multi_phase_state_graph_gtest.cpp.obj
+.PHONY : tests/test_multi_phase_state_graph_gtest.cpp.obj
+
+tests/test_multi_phase_state_graph_gtest.i: tests/test_multi_phase_state_graph_gtest.cpp.i
+.PHONY : tests/test_multi_phase_state_graph_gtest.i
+
+# target to preprocess a source file
+tests/test_multi_phase_state_graph_gtest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_multi_phase_state_graph.dir\build.make CMakeFiles/test_multi_phase_state_graph.dir/tests/test_multi_phase_state_graph_gtest.cpp.i
+.PHONY : tests/test_multi_phase_state_graph_gtest.cpp.i
+
+tests/test_multi_phase_state_graph_gtest.s: tests/test_multi_phase_state_graph_gtest.cpp.s
+.PHONY : tests/test_multi_phase_state_graph_gtest.s
+
+# target to generate assembly for a file
+tests/test_multi_phase_state_graph_gtest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_multi_phase_state_graph.dir\build.make CMakeFiles/test_multi_phase_state_graph.dir/tests/test_multi_phase_state_graph_gtest.cpp.s
+.PHONY : tests/test_multi_phase_state_graph_gtest.cpp.s
+
+tests/test_node_edge_gtest.obj: tests/test_node_edge_gtest.cpp.obj
+.PHONY : tests/test_node_edge_gtest.obj
+
+# target to build an object file
+tests/test_node_edge_gtest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_node_edge.dir\build.make CMakeFiles/test_node_edge.dir/tests/test_node_edge_gtest.cpp.obj
+.PHONY : tests/test_node_edge_gtest.cpp.obj
+
+tests/test_node_edge_gtest.i: tests/test_node_edge_gtest.cpp.i
+.PHONY : tests/test_node_edge_gtest.i
+
+# target to preprocess a source file
+tests/test_node_edge_gtest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_node_edge.dir\build.make CMakeFiles/test_node_edge.dir/tests/test_node_edge_gtest.cpp.i
+.PHONY : tests/test_node_edge_gtest.cpp.i
+
+tests/test_node_edge_gtest.s: tests/test_node_edge_gtest.cpp.s
+.PHONY : tests/test_node_edge_gtest.s
+
+# target to generate assembly for a file
+tests/test_node_edge_gtest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_node_edge.dir\build.make CMakeFiles/test_node_edge.dir/tests/test_node_edge_gtest.cpp.s
+.PHONY : tests/test_node_edge_gtest.cpp.s
+
+tests/test_phase_edge_gtest.obj: tests/test_phase_edge_gtest.cpp.obj
+.PHONY : tests/test_phase_edge_gtest.obj
+
+# target to build an object file
+tests/test_phase_edge_gtest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_phase_edge.dir\build.make CMakeFiles/test_phase_edge.dir/tests/test_phase_edge_gtest.cpp.obj
+.PHONY : tests/test_phase_edge_gtest.cpp.obj
+
+tests/test_phase_edge_gtest.i: tests/test_phase_edge_gtest.cpp.i
+.PHONY : tests/test_phase_edge_gtest.i
+
+# target to preprocess a source file
+tests/test_phase_edge_gtest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_phase_edge.dir\build.make CMakeFiles/test_phase_edge.dir/tests/test_phase_edge_gtest.cpp.i
+.PHONY : tests/test_phase_edge_gtest.cpp.i
+
+tests/test_phase_edge_gtest.s: tests/test_phase_edge_gtest.cpp.s
+.PHONY : tests/test_phase_edge_gtest.s
+
+# target to generate assembly for a file
+tests/test_phase_edge_gtest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_phase_edge.dir\build.make CMakeFiles/test_phase_edge.dir/tests/test_phase_edge_gtest.cpp.s
+.PHONY : tests/test_phase_edge_gtest.cpp.s
 
 tests/test_state_graph.obj: tests/test_state_graph.cpp.obj
 .PHONY : tests/test_state_graph.obj
@@ -199,6 +470,54 @@ tests/test_state_graph.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\state_graph_tests.dir\build.make CMakeFiles/state_graph_tests.dir/tests/test_state_graph.cpp.s
 .PHONY : tests/test_state_graph.cpp.s
 
+tests/test_state_graph_gtest.obj: tests/test_state_graph_gtest.cpp.obj
+.PHONY : tests/test_state_graph_gtest.obj
+
+# target to build an object file
+tests/test_state_graph_gtest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_state_graph.dir\build.make CMakeFiles/test_state_graph.dir/tests/test_state_graph_gtest.cpp.obj
+.PHONY : tests/test_state_graph_gtest.cpp.obj
+
+tests/test_state_graph_gtest.i: tests/test_state_graph_gtest.cpp.i
+.PHONY : tests/test_state_graph_gtest.i
+
+# target to preprocess a source file
+tests/test_state_graph_gtest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_state_graph.dir\build.make CMakeFiles/test_state_graph.dir/tests/test_state_graph_gtest.cpp.i
+.PHONY : tests/test_state_graph_gtest.cpp.i
+
+tests/test_state_graph_gtest.s: tests/test_state_graph_gtest.cpp.s
+.PHONY : tests/test_state_graph_gtest.s
+
+# target to generate assembly for a file
+tests/test_state_graph_gtest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_state_graph.dir\build.make CMakeFiles/test_state_graph.dir/tests/test_state_graph_gtest.cpp.s
+.PHONY : tests/test_state_graph_gtest.cpp.s
+
+tests/test_value_gtest.obj: tests/test_value_gtest.cpp.obj
+.PHONY : tests/test_value_gtest.obj
+
+# target to build an object file
+tests/test_value_gtest.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_value.dir\build.make CMakeFiles/test_value.dir/tests/test_value_gtest.cpp.obj
+.PHONY : tests/test_value_gtest.cpp.obj
+
+tests/test_value_gtest.i: tests/test_value_gtest.cpp.i
+.PHONY : tests/test_value_gtest.i
+
+# target to preprocess a source file
+tests/test_value_gtest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_value.dir\build.make CMakeFiles/test_value.dir/tests/test_value_gtest.cpp.i
+.PHONY : tests/test_value_gtest.cpp.i
+
+tests/test_value_gtest.s: tests/test_value_gtest.cpp.s
+.PHONY : tests/test_value_gtest.s
+
+# target to generate assembly for a file
+tests/test_value_gtest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\test_value.dir\build.make CMakeFiles/test_value.dir/tests/test_value_gtest.cpp.s
+.PHONY : tests/test_value_gtest.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -206,16 +525,48 @@ help:
 	@echo ... clean
 	@echo ... depend
 	@echo ... edit_cache
+	@echo ... install
+	@echo ... install/local
+	@echo ... install/strip
+	@echo ... list_install_components
 	@echo ... rebuild_cache
 	@echo ... test
+	@echo ... gmock
+	@echo ... gmock_main
+	@echo ... gtest
+	@echo ... gtest_main
 	@echo ... state_graph_demo
 	@echo ... state_graph_tests
+	@echo ... test_expression
+	@echo ... test_multi_phase_state_graph
+	@echo ... test_node_edge
+	@echo ... test_phase_edge
+	@echo ... test_state_graph
+	@echo ... test_value
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... tests/test_expression_gtest.obj
+	@echo ... tests/test_expression_gtest.i
+	@echo ... tests/test_expression_gtest.s
+	@echo ... tests/test_multi_phase_state_graph_gtest.obj
+	@echo ... tests/test_multi_phase_state_graph_gtest.i
+	@echo ... tests/test_multi_phase_state_graph_gtest.s
+	@echo ... tests/test_node_edge_gtest.obj
+	@echo ... tests/test_node_edge_gtest.i
+	@echo ... tests/test_node_edge_gtest.s
+	@echo ... tests/test_phase_edge_gtest.obj
+	@echo ... tests/test_phase_edge_gtest.i
+	@echo ... tests/test_phase_edge_gtest.s
 	@echo ... tests/test_state_graph.obj
 	@echo ... tests/test_state_graph.i
 	@echo ... tests/test_state_graph.s
+	@echo ... tests/test_state_graph_gtest.obj
+	@echo ... tests/test_state_graph_gtest.i
+	@echo ... tests/test_state_graph_gtest.s
+	@echo ... tests/test_value_gtest.obj
+	@echo ... tests/test_value_gtest.i
+	@echo ... tests/test_value_gtest.s
 .PHONY : help
 
 
