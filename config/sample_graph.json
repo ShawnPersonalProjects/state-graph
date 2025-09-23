@@ -4,32 +4,32 @@
       "id": "Main",
       "initial_state": "Idle",
       "nodes": [
-        { "id": "Idle",   "params": { "desc": "System idle" },   "vars": { "count": 0, "enabled": true } },
-        { "id": "Active", "params": { "desc": "Processing" },    "vars": { "count": 0, "enabled": true } },
-        { "id": "Error",  "params": { "desc": "Fault" },         "vars": { "count": 0, "enabled": true } }
+        { "id": "Idle",   "params": { "desc": "System idle" },   "vars": { "count": 0, "enabled": true }, "properties": { "priority": "low", "timeout": 30 } },
+        { "id": "Active", "params": { "desc": "Processing" },    "vars": { "count": 0, "enabled": true }, "properties": { "priority": "high", "timeout": 60 } },
+        { "id": "Error",  "params": { "desc": "Fault" },         "vars": { "count": 0, "enabled": true }, "properties": { "priority": "critical", "timeout": 10 } }
       ],
       "edges": [
-        { "from": "Idle",   "to": "Active", "condition": "enabled && count >= 0", "actions": { "count": 1 } },
-        { "from": "Active", "to": "Active", "condition": "count < 2 && enabled",  "actions": { "count": 2 } },
-        { "from": "Active", "to": "Error",  "condition": "!enabled || count >= 2" },
-        { "from": "Error",  "to": "Idle",   "condition": "count >= 5", "actions": { "count": 0, "enabled": true } }
+        { "from": "Idle",   "to": "Active", "condition": "enabled && count >= 0 && properties.priority == \"low\"", "actions": { "count": 1 } },
+        { "from": "Active", "to": "Active", "condition": "count < 2 && enabled && properties.timeout > 30",  "actions": { "count": 2 } },
+        { "from": "Active", "to": "Error",  "condition": "!enabled || count >= 2 || properties.priority == \"critical\"",  "actions": { "count": 3 } },
+        { "from": "Error",  "to": "Idle",   "condition": "count >= 5 && properties.timeout <= 15", "actions": { "count": 0, "enabled": true } }
       ]
     },
     {
       "id": "Recovery",
-      "initial_state": "RIdle",
+      "initial_state": "Idle",
       "nodes": [
-        { "id": "RIdle",  "params": { "desc": "Recovery idle" }, "vars": { "attempts": 0, "enabled": true } },
-        { "id": "Repair", "params": { "desc": "Repairing" },     "vars": { "attempts": 0, "enabled": true } }
+        { "id": "Idle",  "params": { "desc": "Recovery idle" }, "vars": { "attempts": 0, "enabled": true }, "properties": { "priority": "medium", "maxRetries": 3 } },
+        { "id": "Repair", "params": { "desc": "Repairing" },     "vars": { "attempts": 0, "enabled": true }, "properties": { "priority": "high", "maxRetries": 5 } }
       ],
       "edges": [
-        { "from": "RIdle",  "to": "Repair", "condition": "attempts < 1 && enabled", "actions": { "attempts": 1 } },
-        { "from": "Repair", "to": "RIdle",  "condition": "attempts >= 1", "actions": { "attempts": 2 } }
+        { "from": "Idle",  "to": "Repair", "condition": "attempts < properties.maxRetries && enabled", "actions": { "attempts": 2 } },
+        { "from": "Repair", "to": "Idle",  "condition": "attempts >= 1 && properties.priority == \"high\"", "actions": { "attempts": 3 } }
       ]
     }
   ],
   "phase_edges": [
-    { "from": "Main",     "to": "Recovery", "condition": "count >= 2" },
-    { "from": "Recovery", "to": "Main",     "condition": "attempts >= 2" }
+    { "from": "Main",     "to": "Recovery", "condition": "count >= 2 && properties.priority == \"critical\"" },
+    { "from": "Recovery", "to": "Main",     "condition": "attempts >= 2 && properties.maxRetries > 3" }
   ]
 }

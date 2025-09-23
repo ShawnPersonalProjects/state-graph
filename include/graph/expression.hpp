@@ -32,7 +32,7 @@ public:
         char c = s[i];
         if (std::isalpha((unsigned char)c) || c=='_') {
             size_t start=i++;
-            while (i<s.size() && (std::isalnum((unsigned char)s[i])||s[i]=='_')) ++i;
+            while (i<s.size() && (std::isalnum((unsigned char)s[i])||s[i]=='_'||s[i]=='.')) ++i;
             std::string id = s.substr(start,i-start);
             if (id=="true" || id=="false") return {TokKind::BOOL,id};
             return {TokKind::ID,id};
@@ -89,7 +89,15 @@ public:
                     case ASTValue::NUMBER:  return leaf.num != 0.0;
                     case ASTValue::STRING:  return !leaf.text.empty();
                     case ASTValue::IDENT: {
-                        auto *v = node.getVar(leaf.text);
+                        const Value* v = nullptr;
+                        if (leaf.text.substr(0, 11) == "properties.") {
+                            // Handle property access: properties.propertyName
+                            std::string propName = leaf.text.substr(11);
+                            v = node.getProperty(propName);
+                        } else {
+                            // Handle variable access
+                            v = node.getVar(leaf.text);
+                        }
                         if (!v) return false;
                         if (std::holds_alternative<bool>(*v)) return std::get<bool>(*v);
                         if (std::holds_alternative<int64_t>(*v)) return std::get<int64_t>(*v)!=0;
@@ -148,8 +156,22 @@ private:
             case ASTValue::NUMBER:  return n.leaf.num;
             case ASTValue::STRING:  return n.leaf.text;
             case ASTValue::IDENT: {
-                auto *v = node.getVar(n.leaf.text);
-                if (!v) throw std::runtime_error("Unknown var: "+n.leaf.text);
+                const Value* v = nullptr;
+                if (n.leaf.text.substr(0, 11) == "properties.") {
+                    // Handle property access: properties.propertyName
+                    std::string propName = n.leaf.text.substr(11);
+                    v = node.getProperty(propName);
+                } else {
+                    // Handle variable access
+                    v = node.getVar(n.leaf.text);
+                }
+                if (!v) {
+                    if (n.leaf.text.substr(0, 11) == "properties.") {
+                        throw std::runtime_error("Unknown property: " + n.leaf.text.substr(11));
+                    } else {
+                        throw std::runtime_error("Unknown var: " + n.leaf.text);
+                    }
+                }
                 return *v;
             }
         }

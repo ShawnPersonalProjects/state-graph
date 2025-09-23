@@ -14,11 +14,16 @@ int main() {
         std::cerr << "Config load failed\n";
         return 1;
     }
+
+    std::cout << "Config loaded\n";
+
     mpg.setInitialPhase("Main");
     std::cout << "Start Phase: " << mpg.currentPhaseId()
               << " State: " << mpg.currentStateId() << "\n";
 
     for (int i=0; i<15; ++i) {
+        mpg.currentNode().print();
+        std::cout << "\n";
         auto r = mpg.step();
         if (!r) { std::cout << "No step\n"; break; }
         std::cout << "[" << i << "] Phase=" << r->phase_id

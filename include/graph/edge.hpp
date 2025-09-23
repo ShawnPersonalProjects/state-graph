@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <iostream>
 #include "json.hpp"
 #include <memory>
 #include "value.hpp"
@@ -38,5 +39,22 @@ struct DefaultEdge {
 
     bool evaluate(const DefaultNode& current) const {
         return compiled ? compiled->eval(current) : true;
+    }
+    
+    void print() const {
+        std::cout << "Edge: " << from << " -> " << to << "\n";
+        std::cout << "  Condition: " << condition_expr << "\n";
+        std::cout << "  Actions: ";
+        if (actions.empty()) {
+            std::cout << "(none)";
+        } else {
+            bool first = true;
+            for (const auto& [key, value] : actions) {
+                if (!first) std::cout << ", ";
+                std::cout << key << "=" << valueToString(value);
+                first = false;
+            }
+        }
+        std::cout << "\n";
     }
 };

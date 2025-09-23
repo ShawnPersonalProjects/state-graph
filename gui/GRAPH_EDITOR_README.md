@@ -1,4 +1,4 @@
-# State Graph Editor - Web-based GUI
+# Algo Matrix Editor - Web-based GUI
 
 A comprehensive web-based graphical user interface for creating and editing state graphs in JSON format. This editor provides an intuitive drag-and-drop interface for building complex multi-phase state machines.
 

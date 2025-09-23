@@ -1,0 +1,30 @@
+{
+  "phases": [
+    {
+      "id": "Phase1",
+      "initial_state": "Idle",
+      "nodes": [
+        { "id": "Idle", "params": { "desc": "Phase1 idle" }, "vars": { "count": 0 } },
+        { "id": "Active", "params": { "desc": "Phase1 active" }, "vars": { "count": 1 } }
+      ],
+      "edges": [
+        { "from": "Idle", "to": "Active", "condition": "count >= 0", "actions": { "count": 1 } }
+      ]
+    },
+    {
+      "id": "Phase2", 
+      "initial_state": "Idle",
+      "nodes": [
+        { "id": "Idle", "params": { "desc": "Phase2 idle" }, "vars": { "count": 0 } },
+        { "id": "Active", "params": { "desc": "Phase2 active" }, "vars": { "count": 2 } }
+      ],
+      "edges": [
+        { "from": "Idle", "to": "Active", "condition": "count >= 0", "actions": { "count": 2 } },
+        { "from": "Active", "to": "Idle", "condition": "count >= 2", "actions": { "count": 0 } }
+      ]
+    }
+  ],
+  "phase_edges": [
+    { "from": "Phase1", "to": "Phase2", "condition": "count >= 1" }
+  ]
+}

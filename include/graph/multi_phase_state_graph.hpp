@@ -79,11 +79,6 @@ public:
         StepResult r;
         auto& phase = phases_[*current_phase_];
 
-        // Node-level step
-        auto prevState = phase.graph.currentStateId();
-        if (auto ns = phase.graph.step()) {
-            r.state_changed = true;
-        }
         // Phase-level evaluation (after node step)
         auto& curNode = phase.graph.currentNode();
         for (auto peIdx : phase_adj_[*current_phase_]) {
@@ -95,15 +90,23 @@ public:
                     throw std::runtime_error("Phase edge to unknown phase: " + pe.to);
                 current_phase_ = targetIt->second;
                 auto& newPhase = phases_[*current_phase_];
-                // If new phase has no current state set yet, set its initial
-                if (!newPhase.graph.hasCurrentState()) {
-                    if (!newPhase.initial_state.empty())
-                        newPhase.graph.setInitialState(newPhase.initial_state);
+                // Always set the initial state during phase transition
+                if (!newPhase.initial_state.empty()) {
+                    newPhase.graph.setInitialState(newPhase.initial_state);
                 }
                 r.phase_changed = true;
                 break;
             }
         }
+
+        // Node-level step
+        if (!r.phase_changed) {
+            auto prevState = phase.graph.currentStateId();
+            if (auto ns = phase.graph.step()) {
+                r.state_changed = true;
+            }
+        }
+
         r.phase_id = currentPhaseId();
         r.state_id = currentStateId();
         return r;
@@ -111,29 +114,38 @@ public:
 
     bool loadFromJson(const std::string& filePath) {
         clear();
-        std::ifstream in(filePath);
-        if (!in.is_open()) return false;
-        nlohmann::json j;
-        in >> j;
+        try {
+            std::ifstream in(filePath);
+            if (!in.is_open()) {
+                std::cerr << "Error: Cannot open file: " << filePath << std::endl;
+                return false;
+            }
+            
+            nlohmann::json j;
+            in >> j;
 
-        if (!j.contains("phases") || !j["phases"].is_array())
-            throw std::runtime_error("Missing phases array");
+            if (!j.contains("phases") || !j["phases"].is_array()) {
+                std::cerr << "Error: Missing or invalid 'phases' array in JSON" << std::endl;
+                return false;
+            }
 
-        // Load phases
-        for (auto& pj : j["phases"]) {
-            Phase p;
-            p.id = pj.at("id").get<std::string>();
-            if (phase_index_.count(p.id))
-                throw std::runtime_error("Duplicate phase id: " + p.id);
-            if (pj.contains("nodes"))
-                for (auto& nj : pj["nodes"]) p.graph.addNode(Node::from_json(nj));
-            if (pj.contains("edges"))
-                for (auto& ej : pj["edges"]) p.graph.addEdge(Edge::from_json(ej));
-            if (pj.contains("initial_state"))
-                p.initial_state = pj["initial_state"].get<std::string>();
-            if (!p.initial_state.empty())
-                p.graph.setInitialState(p.initial_state);
-            phase_index_[p.id] = phases_.size();
+            // Load phases
+            for (auto& pj : j["phases"]) {
+                Phase p;
+                p.id = pj.at("id").get<std::string>();
+                if (phase_index_.count(p.id)) {
+                    std::cerr << "Error: Duplicate phase id: " << p.id << std::endl;
+                    return false;
+                }
+                if (pj.contains("nodes"))
+                    for (auto& nj : pj["nodes"]) p.graph.addNode(Node::from_json(nj));
+                if (pj.contains("edges"))
+                    for (auto& ej : pj["edges"]) p.graph.addEdge(Edge::from_json(ej));
+                if (pj.contains("initial_state"))
+                    p.initial_state = pj["initial_state"].get<std::string>();
+                if (!p.initial_state.empty())
+                    p.graph.setInitialState(p.initial_state);
+                phase_index_[p.id] = phases_.size();
             phases_.push_back(std::move(p));
             phase_adj_.emplace_back();
         }
@@ -144,8 +156,10 @@ public:
                 auto edge = PhaseEdge::from_json(fe);
                 auto fi = phase_index_.find(edge.from);
                 auto ti = phase_index_.find(edge.to);
-                if (fi == phase_index_.end() || ti == phase_index_.end())
-                    throw std::runtime_error("Phase edge references unknown phase");
+                if (fi == phase_index_.end() || ti == phase_index_.end()) {
+                    std::cerr << "Error: Phase edge references unknown phase: " << edge.from << " -> " << edge.to << std::endl;
+                    return false;
+                }
                 std::size_t idx = phase_edges_.size();
                 phase_edges_.push_back(std::move(edge));
                 phase_adj_[fi->second].push_back(idx);
@@ -159,6 +173,14 @@ public:
             if (!p.graph.hasCurrentState() && !p.initial_state.empty())
                 p.graph.setInitialState(p.initial_state);
         }
+
+        std::cout << "Successfully loaded " << phases_.size() << " phases and " << phase_edges_.size() << " phase edges from " << filePath << std::endl;
         return true;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error loading JSON from " << filePath << ": " << e.what() << std::endl;
+        clear();
+        return false;
     }
+}
 };

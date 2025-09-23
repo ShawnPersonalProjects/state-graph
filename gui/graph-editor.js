@@ -1,4 +1,4 @@
-// Graph Editor JavaScript
+// Algo Matrix Editor JavaScript
 
 // Global state
 let selectedElement = null;
@@ -477,8 +477,8 @@ function createPhase(x, y) {
         initial_state: '',
         x: x,
         y: y,
-        width: 200,
-        height: 150,
+        width: 400,
+        height: 300,
         nodes: [],
         edges: []
     };
@@ -497,9 +497,10 @@ function createNode(x, y, phase) {
         displayId: `Node${elementCounter}`,
         params: {},
         vars: {},
+        properties: {},
         x: Math.max(20, x - phase.x),  // Relative to phase, with padding
         y: Math.max(50, y - phase.y), // Account for phase header
-        radius: 20,
+        radius: 30,
         phaseId: phase.id
     };
     
@@ -711,7 +712,7 @@ function addResizeHandles(parentGroup, element, elementType) {
         });
     } else if (elementType === 'node') {
         // For nodes, just add corner handles
-        const nodeRadius = 25;
+        const nodeRadius = 38;
         const corners = [
             { x: element.x - nodeRadius, y: element.y - nodeRadius, position: 'nw' },
             { x: element.x + nodeRadius, y: element.y - nodeRadius, position: 'ne' },
@@ -786,8 +787,8 @@ function handleResizeStart(e, element, elementType, position) {
         resizeStartPos.x = element.x;
         resizeStartPos.y = element.y;
     } else if (elementType === 'node') {
-        resizeStartSize.width = element.radius || 25;
-        resizeStartSize.height = element.radius || 25;
+        resizeStartSize.width = element.radius || 38;
+        resizeStartSize.height = element.radius || 38;
         resizeStartPos.x = element.x;
         resizeStartPos.y = element.y;
     }
@@ -831,8 +832,8 @@ function handleResizeEnd() {
 }
 
 function resizePhase(phase, deltaX, deltaY) {
-    const minWidth = 100;
-    const minHeight = 80;
+    const minWidth = 200;
+    const minHeight = 160;
     
     switch (resizeHandle) {
         case 'se': // Bottom-right corner
@@ -882,12 +883,12 @@ function resizePhase(phase, deltaX, deltaY) {
 }
 
 function resizeNode(node, deltaX, deltaY) {
-    const minRadius = 15;
+    const minRadius = 23;
     const maxRadius = 50;
     
     // Calculate new radius based on distance from center
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const newRadius = Math.max(minRadius, Math.min(maxRadius, (resizeStartSize.width || 25) + distance * 0.1));
+    const newRadius = Math.max(minRadius, Math.min(maxRadius, (resizeStartSize.width || 38) + distance * 0.1));
     
     node.radius = newRadius;
     
@@ -904,7 +905,7 @@ function renderNode(node) {
     nodeGroup.dataset.nodeId = node.id;
     
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    const nodeRadius = node.radius || 20;
+    const nodeRadius = node.radius || 30;
     circle.setAttribute('cx', phase.x + node.x);
     circle.setAttribute('cy', phase.y + node.y);
     circle.setAttribute('r', nodeRadius);
@@ -967,7 +968,7 @@ function renderEdge(edge) {
     let midX, midY;
     if (edge.from === edge.to) {
         // Self-loop - create a loop that extends outside the node
-        const nodeRadius = fromNode.radius || 20;
+        const nodeRadius = fromNode.radius || 30;
         const loopSize = nodeRadius * 1.5; // Size of the loop extending outward
         
         // Create connection points on the node edge
@@ -993,8 +994,8 @@ function renderEdge(edge) {
     } else {
         // Calculate arrow positions avoiding node overlap
         const angle = Math.atan2(toY - fromY, toX - fromX);
-        const fromRadius = fromNode.radius || 20;
-        const toRadius = toNode.radius || 20;
+        const fromRadius = fromNode.radius || 30;
+        const toRadius = toNode.radius || 30;
         
         // Calculate offset for multiple edges between same nodes
         const edgeOffset = calculateEdgeOffset(edge, fromNode, toNode);
@@ -1079,7 +1080,7 @@ function renderEdge(edge) {
     label.style.cursor = 'pointer';
     
     if (edge.condition) {
-        createMultiLineText(label, edge.condition, 80, 2);
+        createMultiLineText(label, edge.condition, 160, 2);
     } else {
         // Show a small clickable indicator for edges without conditions
         label.textContent = '•';
@@ -1195,7 +1196,7 @@ function renderPhaseEdge(phaseEdge) {
     label.style.cursor = 'pointer';
     
     if (phaseEdge.condition) {
-        createMultiLineText(label, phaseEdge.condition, 100, 2);
+        createMultiLineText(label, phaseEdge.condition, 200, 2);
     } else {
         // Show a default indicator for phase edges without conditions
         label.textContent = '◊';
@@ -1439,8 +1440,9 @@ function createMultiLineText(textElement, text, maxWidth = 80, maxLines = 3) {
     for (let word of words) {
         const testLine = currentLine ? currentLine + ' ' + word : word;
         
-        // Rough character limit per line (adjust based on font size)
-        if (testLine.length > 12 && currentLine !== '') {
+        // Use maxWidth parameter to determine character limit per line
+        const charactersPerLine = Math.max(12, Math.floor(maxWidth / 8)); // Rough estimate: 8 pixels per character
+        if (testLine.length > charactersPerLine && currentLine !== '') {
             lines.push(currentLine);
             currentLine = word;
         } else {
@@ -1621,11 +1623,15 @@ function selectElement(elementType, elementId) {
     if (element) {
         element.classList.add('selected');
     }
+    
+    // Show element details
+    showElementDetails(elementType, elementId);
 }
 
 function clearSelection() {
     document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
     selectedElement = null;
+    hideElementDetails();
 }
 
 // Edit functions
@@ -1671,6 +1677,7 @@ function editNode(nodeId) {
     document.getElementById('nodeId').value = node.displayId;
     document.getElementById('nodeDesc').value = JSON.stringify(node.params || {}, null, 2);
     document.getElementById('nodeVars').value = JSON.stringify(node.vars || {}, null, 2);
+    document.getElementById('nodeProperties').value = JSON.stringify(node.properties || {}, null, 2);
     
     document.getElementById('nodeModal').style.display = 'block';
     document.getElementById('nodeForm').dataset.nodeId = nodeId;
@@ -1793,6 +1800,13 @@ function handleNodeFormSubmit(e) {
             return;
         }
         
+        try {
+            node.properties = JSON.parse(document.getElementById('nodeProperties').value || '{}');
+        } catch (error) {
+            alert('Invalid JSON format for properties');
+            return;
+        }
+        
         // Re-render node
         document.querySelector(`[data-node-id="${nodeId}"]`).remove();
         renderNode(node);
@@ -1809,12 +1823,28 @@ function handleEdgeFormSubmit(e) {
     const edge = edges.get(edgeId);
     
     if (edge) {
-        // Find nodes by display ID
+        // Find current nodes to determine phase
+        const currentFromNode = nodes.get(edge.from);
+        const currentToNode = nodes.get(edge.to);
+        
+        if (!currentFromNode || !currentToNode) {
+            alert('Error: Edge references invalid nodes');
+            return;
+        }
+        
+        // Both nodes should be in the same phase
+        const phaseId = currentFromNode.phaseId;
+        if (currentToNode.phaseId !== phaseId) {
+            alert('Error: Edge nodes are in different phases');
+            return;
+        }
+        
+        // Find nodes by display ID within the same phase
         const fromDisplayId = document.getElementById('edgeFrom').value;
         const toDisplayId = document.getElementById('edgeTo').value;
         
-        const fromNode = findNodeByDisplayId(fromDisplayId);
-        const toNode = findNodeByDisplayId(toDisplayId);
+        const fromNode = findNodeByDisplayIdInPhase(fromDisplayId, phaseId);
+        const toNode = findNodeByDisplayIdInPhase(toDisplayId, phaseId);
         
         if (fromNode && toNode) {
             edge.from = fromNode.id;
@@ -1891,6 +1921,15 @@ function findPhaseForEdge(edgeId) {
 function findNodeByDisplayId(displayId) {
     for (let [id, node] of nodes) {
         if (node.displayId === displayId) {
+            return node;
+        }
+    }
+    return null;
+}
+
+function findNodeByDisplayIdInPhase(displayId, phaseId) {
+    for (let [id, node] of nodes) {
+        if (node.displayId === displayId && node.phaseId === phaseId) {
             return node;
         }
     }
@@ -2063,7 +2102,7 @@ function importJSON(jsonData) {
     // Save current filename before clearing (it was set in handleFileLoad)
     const savedFileName = currentFileName;
     
-    clearCanvas();
+    clearCanvas(false); // Don't reset file input during import
     
     // Restore the filename after clearing
     currentFileName = savedFileName;
@@ -2079,8 +2118,8 @@ function importJSON(jsonData) {
                 initial_state: phaseData.initial_state,
                 x: phaseData.position?.x || (50 + index * 250),
                 y: phaseData.position?.y || 50,
-                width: phaseData.position?.width || 200,
-                height: phaseData.position?.height || 150,
+                width: phaseData.position?.width || 400,
+                height: phaseData.position?.height || 300,
                 nodes: [],
                 edges: []
             };
@@ -2097,9 +2136,10 @@ function importJSON(jsonData) {
                         displayId: nodeData.id,
                         params: nodeData.params || {},
                         vars: nodeData.vars || {},
+                        properties: nodeData.properties || {},
                         x: nodeData.position?.x || (50 + (nodeIndex % 3) * 60),
                         y: nodeData.position?.y || (50 + Math.floor(nodeIndex / 3) * 50),
-                        radius: nodeData.position?.radius || 20,
+                        radius: nodeData.position?.radius || 30,
                         phaseId: phaseId
                     };
                     
@@ -2112,10 +2152,10 @@ function importJSON(jsonData) {
             // Import edges with control points (defer rendering)
             if (phaseData.edges) {
                 phaseData.edges.forEach(edgeData => {
-                    const fromNode = findNodeByDisplayId(edgeData.from);
-                    const toNode = findNodeByDisplayId(edgeData.to);
+                    const fromNode = findNodeByDisplayIdInPhase(edgeData.from, phaseId);
+                    const toNode = findNodeByDisplayIdInPhase(edgeData.to, phaseId);
                     
-                    if (fromNode && toNode && fromNode.phaseId === phaseId && toNode.phaseId === phaseId) {
+                    if (fromNode && toNode) {
                         const edgeId = `edge_${++elementCounter}`;
                         const edge = {
                             id: edgeId,
@@ -2197,8 +2237,8 @@ function generateJSON() {
             position: {
                 x: phase.x || 50,
                 y: phase.y || 50,
-                width: phase.width || 200,
-                height: phase.height || 150
+                width: phase.width || 400,
+                height: phase.height || 300
             },
             nodes: [],
             edges: []
@@ -2212,10 +2252,11 @@ function generateJSON() {
                     id: node.displayId,
                     params: node.params || {},
                     vars: node.vars,
+                    properties: node.properties || {},
                     position: {
                         x: node.x || 100,  // Relative to phase
                         y: node.y || 75,
-                        radius: node.radius || 20
+                        radius: node.radius || 30
                     }
                 };
                 phaseData.nodes.push(nodeData);
@@ -2286,7 +2327,7 @@ function updateJSONPreview() {
     preview.textContent = JSON.stringify(jsonData, null, 2);
 }
 
-function clearCanvas() {
+function clearCanvas(resetFileInput = true) {
     phases.clear();
     nodes.clear();
     edges.clear();
@@ -2327,9 +2368,17 @@ function clearCanvas() {
     clearSelection();
     updateJSONPreview();
     
-    // Reset filename
-    currentFileName = 'untitled.json';
-    updateFilenameDisplay();
+    if (resetFileInput) {
+        // Reset file input to allow re-loading the same file
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        
+        // Reset filename
+        currentFileName = 'untitled.json';
+        updateFilenameDisplay();
+    }
 }
 
 function loadSampleData() {
@@ -2371,4 +2420,97 @@ function loadSampleData() {
     };
     
     importJSON(sampleData);
+}
+
+// Details panel functionality
+function showElementDetails(elementType, elementId) {
+    const detailsTitle = document.getElementById('detailsTitle');
+    const detailsPanel = document.getElementById('detailsPanel');
+    
+    if (!detailsTitle || !detailsPanel) return;
+    
+    let detailsContent = '';
+    
+    if (elementType === 'node') {
+        const node = nodes.get(elementId);
+        if (!node) return;
+        
+        detailsContent = `
+            <div><strong>Node:</strong> ${node.displayId || node.id}</div>
+            <div><strong>Position:</strong> (${Math.round(node.x)}, ${Math.round(node.y)})</div>
+            ${node.params && Object.keys(node.params).length > 0 ? 
+                `<div><strong>Parameters:</strong><br/>${Object.entries(node.params).map(([key, value]) => 
+                    `&nbsp;&nbsp;${key}: ${JSON.stringify(value)}`).join('<br/>')}</div>` : ''
+            }
+            ${node.vars && Object.keys(node.vars).length > 0 ? 
+                `<div><strong>Variables:</strong><br/>${Object.entries(node.vars).map(([key, value]) => 
+                    `&nbsp;&nbsp;${key}: ${JSON.stringify(value)}`).join('<br/>')}</div>` : ''
+            }
+        `;
+        
+    } else if (elementType === 'edge') {
+        const edge = edges.get(elementId);
+        if (!edge) return;
+        
+        const fromNode = nodes.get(edge.from);
+        const toNode = nodes.get(edge.to);
+        
+        detailsContent = `
+            <div><strong>Edge:</strong> ${edge.displayId || edge.id}</div>
+            <div><strong>From:</strong> ${fromNode ? (fromNode.displayId || fromNode.id) : edge.from}</div>
+            <div><strong>To:</strong> ${toNode ? (toNode.displayId || toNode.id) : edge.to}</div>
+            ${edge.condition ? `<div><strong>Condition:</strong> ${edge.condition}</div>` : ''}
+            ${edge.actions && Object.keys(edge.actions).length > 0 ? 
+                `<div><strong>Actions:</strong><br/>${Object.entries(edge.actions).map(([key, value]) => 
+                    `&nbsp;&nbsp;${key}: ${JSON.stringify(value)}`).join('<br/>')}</div>` : ''
+            }
+        `;
+        
+    } else if (elementType === 'phase') {
+        const phase = phases.get(elementId);
+        if (!phase) return;
+        
+        const phaseNodes = Array.from(nodes.values()).filter(n => n.phaseId === elementId);
+        const phaseEdges = Array.from(edges.values()).filter(e => {
+            const fromNode = nodes.get(e.from);
+            return fromNode && fromNode.phaseId === elementId;
+        });
+        
+        detailsContent = `
+            <div><strong>Phase:</strong> ${phase.displayId || phase.id}</div>
+            <div><strong>Position:</strong> (${Math.round(phase.x)}, ${Math.round(phase.y)})</div>
+            <div><strong>Size:</strong> ${phase.width} × ${phase.height}</div>
+            ${phase.initialState ? `<div><strong>Initial State:</strong> ${phase.initialState}</div>` : ''}
+            <div><strong>Nodes:</strong> ${phaseNodes.length}</div>
+            <div><strong>Edges:</strong> ${phaseEdges.length}</div>
+        `;
+        
+    } else if (elementType === 'phaseEdge') {
+        const phaseEdge = phaseEdges.get(elementId);
+        if (!phaseEdge) return;
+        
+        const fromPhase = phases.get(phaseEdge.from);
+        const toPhase = phases.get(phaseEdge.to);
+        
+        detailsContent = `
+            <div><strong>Phase Edge:</strong> ${phaseEdge.displayId || phaseEdge.id}</div>
+            <div><strong>From Phase:</strong> ${fromPhase ? (fromPhase.displayId || fromPhase.id) : phaseEdge.from}</div>
+            <div><strong>To Phase:</strong> ${toPhase ? (toPhase.displayId || toPhase.id) : phaseEdge.to}</div>
+            ${phaseEdge.condition ? `<div><strong>Condition:</strong> ${phaseEdge.condition}</div>` : ''}
+        `;
+    }
+    
+    if (detailsContent) {
+        detailsPanel.innerHTML = detailsContent;
+        detailsTitle.style.display = 'block';
+        detailsPanel.style.display = 'block';
+    }
+}
+
+function hideElementDetails() {
+    const detailsTitle = document.getElementById('detailsTitle');
+    const detailsPanel = document.getElementById('detailsPanel');
+    
+    if (detailsTitle) detailsTitle.style.display = 'none';
+    if (detailsPanel) detailsPanel.style.display = 'none';
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State Graph Editor</title>
+    <title>Algo Matrix Editor</title>
     <style>
         * {
             margin: 0;
@@ -574,7 +574,7 @@
 </head>
 <body>
     <div class="toolbar">
-        <h1>State Graph Editor</h1>
+        <h1>Algo Matrix Editor</h1>
         <div class="filename-display">
             <span style="color: #7f8c8d; font-size: 12px;">File: </span>
             <span id="currentFileName" style="color: #ecf0f1; font-size: 12px; font-weight: bold;">untitled.json</span>
@@ -612,6 +612,11 @@
                 <p><strong>Connect Nodes:</strong> Select Connect Nodes tool, then click two nodes</p>
                 <p><strong>Connect Phases:</strong> Select Connect Phases tool, then click two phases</p>
                 <p><strong>Delete:</strong> Right-click and select delete</p>
+            </div>
+            
+            <h3 id="detailsTitle" style="display: none;">Element Details</h3>
+            <div id="detailsPanel" style="display: none; font-size: 12px; color: #333; line-height: 1.4; background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 10px;">
+                <!-- Details content will be populated here -->
             </div>
         </div>
 
@@ -672,6 +677,11 @@
                 <div class="form-group">
                     <label for="nodeId">Node ID:</label>
                     <input type="text" id="nodeId" name="id" required>
+                </div>
+                <div class="form-group">
+                    <label for="nodeProperties">Properties (JSON format):</label>
+                    <textarea id="nodeProperties" name="properties" placeholder='{"property": "value"}'></textarea>
+                    <small style="color: #7f8c8d;">Properties can be referenced in condition expressions</small>
                 </div>
                 <div class="form-group">
                     <label for="nodeDesc">Parameters (JSON format):</label>
